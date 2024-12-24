@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔑 24h Key Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111111;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #222222;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+            width: 350px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .key-box {
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #66cc66;
+            word-wrap: break-word;
+        }
+        button {
+            background-color: #444444;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #555555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 24h Key Generator</h1>
+        <div class="key-box" id="keyBox">Generando chiave...</div>
+        <button id="copyButton">Copy Key</button>
+    </div>
+
+    <script>
+        // Funzione per generare una chiave unica con il prefisso "KEY_"
+        function generateKey() {
+            // Genera un UUID univoco
+            let key = 'KEY_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            
+            // Salva la data di creazione della chiave (in secondi)
+            let createdAt = Math.floor(Date.now() / 1000);  // Tempo in secondi
+            localStorage.setItem('keyCreationTime', createdAt);
+            localStorage.setItem('generatedKey', key);
+
+            // Imposta la chiave nella pagina
+            document.getElementById('keyBox').textContent = key;
+        }
+
+        // Funzione per verificare se la chiave è scaduta
+        function isKeyExpired() {
+            let createdAt = localStorage.getItem('keyCreationTime');
+            if (createdAt) {
+                let currentTime = Math.floor(Date.now() / 1000);  // Tempo in secondi
+                let expirationTime = createdAt + 24 * 60 * 60;  // 24 ore in secondi
+                return currentTime > expirationTime;
+            }
+            return true;
+        }
+
+        // Funzione per copiare la chiave negli appunti
+        function copyKey() {
+            let keyBox = document.getElementById('keyBox');
+            let key = keyBox.textContent;
+            
+            if (key && !isKeyExpired()) {
+                navigator.clipboard.writeText(key).then(() => {
+                    alert('Chiave copiata!');
+                });
+            } else {
+                alert('La chiave è scaduta o non è stata generata!');
+            }
+        }
+
+        // Se la chiave è già stata generata, controlla se è scaduta
+        if (!localStorage.getItem('generatedKey') || isKeyExpired()) {
+            generateKey();
+        } else {
+            document.getElementById('keyBox').textContent = localStorage.getItem('generatedKey');
+        }
+
+        // Aggiungi evento per copiare la chiave
+        document.getElementById('copyButton').addEventListener('click', copyKey);
+    </script>
+</body>
+</html>
